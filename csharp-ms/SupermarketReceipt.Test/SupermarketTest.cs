@@ -1,18 +1,17 @@
-using System;
 using System.Collections.Generic;
+using NUnit.Framework;
 using SupermarketReceipt;
-using Xunit;
 
 namespace Supermarket.Test
 {
     public class SupermarketTest
     {
    
-        [Fact]
+        [Test]
         public void TenPercentDiscount()
         {
             // ARRANGE
-            SupermarketCatalog catalog = new FakeCatalog();
+            ISupermarketCatalog catalog = new FakeCatalog();
             var toothbrush = new Product("toothbrush", ProductUnit.Each);
             catalog.AddProduct(toothbrush, 0.99);
             var apples = new Product("apples", ProductUnit.Kilo);
@@ -28,14 +27,14 @@ namespace Supermarket.Test
             var receipt = teller.ChecksOutArticlesFrom(cart);
 
             // ASSERT
-            Assert.Equal(4.975, receipt.GetTotalPrice());
-            Assert.Equal(new List<Discount>(), receipt.GetDiscounts());
-            Assert.Single(receipt.GetItems());
+            Assert.AreEqual(4.975, receipt.GetTotalPrice());
+            Assert.AreEqual(new List<Discount>(), receipt.GetDiscounts());
+            Assert.AreEqual(1, receipt.GetItems().Count);
             var receiptItem = receipt.GetItems()[0];
-            Assert.Equal(apples, receiptItem.Product);
-            Assert.Equal(1.99, receiptItem.Price);
-            Assert.Equal(2.5 * 1.99, receiptItem.TotalPrice);
-            Assert.Equal(2.5, receiptItem.Quantity);
+            Assert.AreEqual(apples, receiptItem.Product);
+            Assert.AreEqual(1.99, receiptItem.Price);
+            Assert.AreEqual(2.5 * 1.99, receiptItem.TotalPrice);
+            Assert.AreEqual(2.5, receiptItem.Quantity);
         }
     }
 }
