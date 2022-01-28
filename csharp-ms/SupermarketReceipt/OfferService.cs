@@ -1,18 +1,26 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace SupermarketReceipt;
 
 public class OfferService : IOfferService
 {
-    public IEnumerable<Discount> CalculateDiscounts(Dictionary<Product, Offer> offers, ISupermarketCatalog catalog, ShoppingCart shoppingCart)
+    private readonly Dictionary<Product, Offer> _offers;
+
+    public OfferService(Dictionary<Product, Offer> offers)
+    {
+        _offers = offers;
+    }
+
+    public IEnumerable<Discount> CalculateDiscounts(ISupermarketCatalog catalog, ShoppingCart shoppingCart)
     {
         foreach (var p in shoppingCart.ProductQuantities.Keys)
         {
             var quantity = shoppingCart.ProductQuantities[p];
             var quantityAsInt = (int) quantity;
-            if (offers.ContainsKey(p))
+            if (_offers.ContainsKey(p))
             {
-                var offer = offers[p];
+                var offer = _offers[p];
                 var unitPrice = catalog.GetUnitPrice(p);
                 Discount discount = null;
                 var x = 1;
@@ -33,13 +41,13 @@ public class OfferService : IOfferService
 
                 if (offer.OfferType == SpecialOfferType.FiveForAmount) x = 5;
                 var numberOfXs = quantityAsInt / x;
+
                 if (offer.OfferType == SpecialOfferType.ThreeForTwo && quantityAsInt > 2)
                 {
-                    var discountAmount = quantity * unitPrice - (numberOfXs * 2 * unitPrice + quantityAsInt % 3 * unitPrice);
-                    discount = new Discount(p, "3 for 2", -discountAmount);
+                    discount = new(p, "3 for 2", Convert.ToInt32(Math.Floor(quantity / 3)) * -unitPrice);
                 }
 
-                if (offer.OfferType == SpecialOfferType.TenPercentDiscount) discount = new Discount(p, offer.Argument + "% off", -quantity * unitPrice * offer.Argument / 100.0);
+                if (offer.OfferType == SpecialOfferType.PercentDiscount) discount = new Discount(p, offer.Argument + "% off", -quantity * unitPrice * offer.Argument / 100.0);
                 if (offer.OfferType == SpecialOfferType.FiveForAmount && quantityAsInt >= 5)
                 {
                     var discountTotal = unitPrice * quantity - (offer.Argument * numberOfXs + quantityAsInt % 5 * unitPrice);

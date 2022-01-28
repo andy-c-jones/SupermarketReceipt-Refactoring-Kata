@@ -4,5 +4,5 @@ namespace SupermarketReceipt;
 
 public interface IOfferService
 {
-    IEnumerable<Discount> CalculateDiscounts(Dictionary<Product, Offer> offers, ISupermarketCatalog catalog, ShoppingCart shoppingCart);
+    IEnumerable<Discount> CalculateDiscounts(ISupermarketCatalog catalog, ShoppingCart shoppingCart);
 }

@@ -8,7 +8,7 @@ namespace Supermarket.Test
     public class SupermarketTest
     {
         [Test]
-        public void TenPercentDiscount()
+        public void ShouldCheckoutCart()
         {
             // ARRANGE
             ISupermarketCatalog catalog = new FakeCatalog();
@@ -20,8 +20,11 @@ namespace Supermarket.Test
             var cart = new ShoppingCart();
             cart.AddItemQuantity(apples, 2.5);
 
-            var teller = new Teller(catalog, new OfferService());
-            teller.AddSpecialOffer(SpecialOfferType.TenPercentDiscount, toothbrush, 10.0);
+            var offerService = new Mock<IOfferService>();
+            offerService
+                .Setup(os => os.CalculateDiscounts(catalog, cart))
+                .Returns(new List<Discount>());
+            var teller = new Teller(catalog, offerService.Object);
 
             // ACT
             var receipt = teller.ChecksOutArticlesFrom(cart);
@@ -39,7 +42,7 @@ namespace Supermarket.Test
 
 
         [Test]
-        public void SingleDiscountOfTenPercent_ShouldDiscountItemByTenPercent()
+        public void When_checking_out_Then_offers_should_be_applied()
         {
             // ARRANGE
             ISupermarketCatalog catalog = new FakeCatalog();
@@ -53,13 +56,10 @@ namespace Supermarket.Test
 
             var offerService = new Mock<IOfferService>();
             offerService
-                .Setup(os => os.CalculateDiscounts(It.Is<Dictionary<Product, Offer>>(
-                    offers => offers[toothbrush].Argument == 10.0
-                              && offers[toothbrush].OfferType == SpecialOfferType.TenPercentDiscount), catalog, cart))
+                .Setup(os => os.CalculateDiscounts(catalog, cart))
                 .Returns(expectedDiscount);
 
             var teller = new Teller(catalog, offerService.Object);
-            teller.AddSpecialOffer(SpecialOfferType.TenPercentDiscount, toothbrush, 10.0);
 
             // ACT
             var receipt = teller.ChecksOutArticlesFrom(cart);
