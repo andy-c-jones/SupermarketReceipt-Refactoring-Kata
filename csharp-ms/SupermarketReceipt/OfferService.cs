@@ -35,7 +35,7 @@ public class OfferService : IOfferService
                     {
                         var total = offer.Argument * (quantityAsInt / x) + quantityAsInt % 2 * unitPrice;
                         var discountN = unitPrice * quantity - total;
-                        discount = new Discount(p, "2 for " + offer.Argument, -discountN);
+                        discount = new Discount(p, "2 for €" + offer.Argument, -discountN);
                     }
                 }
 
@@ -44,7 +44,7 @@ public class OfferService : IOfferService
 
                 if (offer.OfferType == SpecialOfferType.ThreeForTwo && quantityAsInt > 2)
                 {
-                    discount = new(p, "3 for 2", Convert.ToInt32(Math.Floor(quantity / 3)) * -unitPrice);
+                    discount = new(p, "3 for the price of 2", Convert.ToInt32(Math.Floor(quantity / 3)) * -unitPrice);
                 }
 
                 if (offer.OfferType == SpecialOfferType.PercentDiscount) discount = new Discount(p, offer.Argument + "% off", -quantity * unitPrice * offer.Argument / 100.0);

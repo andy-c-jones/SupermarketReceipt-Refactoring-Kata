@@ -64,7 +64,7 @@ public class OfferServiceTests
         cart.AddItemQuantity(sausage, 3);
 
         var discounts = new OfferService(offers).CalculateDiscounts(catalog, cart);
-        CollectionAssert.AreEquivalent(new List<Discount> { new(sausage, "3 for 2", -price) }, discounts);
+        CollectionAssert.AreEquivalent(new List<Discount> { new(sausage, "3 for the price of 2", -price) }, discounts);
     }
 
     [TestCase(10, -20)]
@@ -82,11 +82,24 @@ public class OfferServiceTests
         cart.AddItemQuantity(sausage, 8.7);
 
         var discounts = new OfferService(offers).CalculateDiscounts(catalog, cart);
-        CollectionAssert.AreEquivalent(new List<Discount> { new(sausage, "3 for 2", expectedDiscount) }, discounts);
+        CollectionAssert.AreEquivalent(new List<Discount> { new(sausage, "3 for the price of 2", expectedDiscount) }, discounts);
     }
 
+    [Test]
+    public void Given_a_cart_with_two_items_that_qualify_for_TwoForAmount_offer_When_calculating_discounts_Then_return_a_discount_equal_to_the_difference_between_the_total_and_the_set_amount()
+    {
+        var sausage = new Product("Sausage", ProductUnit.Each);
 
+        var offers = new Dictionary<Product, Offer>
+            {{sausage, new Offer(SpecialOfferType.TwoForAmount, sausage, 4)}};
+        var catalog = new FakeCatalog();
+        catalog.AddProduct(sausage, 3);
+        var cart = new ShoppingCart();
+        cart.AddItemQuantity(sausage, 2);
+
+        var discounts = new OfferService(offers).CalculateDiscounts(catalog, cart);
+        CollectionAssert.AreEquivalent(new List<Discount> { new(sausage, "2 for €4", -2) }, discounts);
+    }
     //needs a test for:
-    // TwoForAmount,
     // FiveForAmount
 }
